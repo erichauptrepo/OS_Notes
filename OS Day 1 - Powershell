@@ -1,0 +1,135 @@
+_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+Syntax : SSH [username]@[10.XX.0.3] *XX is my STACK number (4)
+
+
+
+cmdlets follow a verb-noun syntax
+
+_____________________________________----==== Get Commands ====----____________________________________________
+Powershell is a scripting language (OOP)
+
+Get-Content -Path "C:\Test Files\content.txt"                                                                     # Displays the contents of the file
+Get-Variable                                                                                                      # Displays current Variables
+Get-Verb                                                                                                          # List the PowerShell verbs
+Get-Command                                                                                                       # List the PowerShell cmdlets
+Get-Command -Type Cmdlet | Sort-Object -Property Noun | Format-Table -GroupBy Noun                                # Get cmdlets and display them in order
+Get-Command -Type Cmdlet | Sort-Object -Property Noun | Format-Table -GroupBy Noun | findstr -i process           # Get cmdlets find commands that have the word "process" in it (case insensitive with -i)
+Get-Command -Module Microsoft.PowerShell.Security, Microsoft.PowerShell.Utility                                   # Get commands in a module
+
+
+
+_____________________________________----==== Get Help & Get History Commands ====----____________________________________________
+
+Get-Help <cmdlet>                                                 # Displays help about a PowerShell cmdlet
+Get-Help get-process                                              # Displays help for Get-Process cmdlet
+Get-Help get-process -online                                      # Opens a web browser and displays help for the Get-Process cmdlet on the Microsoft website
+Get-Help get-process -detailed                                    # Gives more detailed help info
+Get-Help get-process -full                                        # Gives full documentatin on the command
+Get-Help about_command_syntax                                     # Displays help about command syntax
+Get-History <like Linux will return previous entered commands.>   # Displays history of commands in current window
+Get-Location <similar to PWD on Linux, gl is the alias.>          # Displays present working directory
+
+
+_____________________________________----==== Poweshell Object Properties ====----____________________________________________
+
+Get-Process | Get-Member                                          # Gives the methods and properties of the object/cmdlet
+Get-Process | Select-Object name, id, Description | Select-Object -first 10
+Get-Process | Select name                                         # returns only the names of the processes
+
+
+Start-Process Notepad.exe                                         # This cmdlet uses the Process.Start Method of the System.Diagnostics.Process class to open notepad.exe
+Stop-Process -name notepad                                        # This cmdlet uses the Process.Kill Method of the System.Diagnostics.Process class to stop notepad.exe
+Get-Process | Select-Object Name, ID, path                        # Displays the Get-Process Properties of 'Name, ID, Path' for every process
+
+
+
+_____________________________________----==== Using the Methods of Objects ====----____________________________________________
+
+
+Get-Process | Get-Member | Where-Object {$_.Membertype -match "Method"}       # Displays all objects with Method in their name from the results from Get-Member of the Get-Process cmdlet
+
+Start-Process calc                                                # Open an instance of calculator
+(Get-Process calculator*).kill()                                  # Stops a named process using the kill() method directly
+Stop-Process -name calculator*                                    # Uses a cmdlet to call the Process.Kill method
+
+
+_____________________________________----==== Pipelining ====----____________________________________________
+
+Get-LocalUser | Get-Member      # Displays Properties and Methods of Get-LocalUser cmdlet
+
+
+_____________________________________----==== CIM Classes ====----____________________________________________
+
+Common Information Model (CIM) classes as objects designed to control a specific windows subsystem like the Hard drive, or BIOS.
+
+We use these specifically for process validation dates and service "stuff" (WIN32 system and processes)
+
+Get-Cimclass *                                                                  # Lists all CIM Classes
+Get-CimInstance –Namespace root\securitycenter2 –ClassName antispywareproduct   # Lists the antispywareproduct class from the root/security instance
+Get-CimInstance -ClassName Win32_LogicalDisk -Filter “DriveType=3” | gm         # Shows properties and methods for this Instance
+Get-WmiObject -Class Win32_LogicalDisk -Filter “DriveType=3”                    # Using the Windows Management Instrumentation method
+
+
+Get-CimInstance -class Win32_BIOS                                               # Queries Win32_Bios
+Get-WmiObject -Class Win32_BIOS                                                 # same output but deprecated command
+
+
+
+_____________________________________----==== PowerShell Loops ====----____________________________________________
+#For Loop
+#Initial Placeholder
+  #Example: $num = 1
+#Condition Placeholder
+  #Example: $num -le 10
+#Repeat Placeholder
+  #example: $num++
+#statement List Placeholder
+    #Example: "I Count $num"
+for ($num = 1; $num -le 10; $num++){"I count $num"}
+
+
+
+***Types of loops***
+Get-Help about_For
+Get-Help about_Foreach
+Get-Help about_While
+Get-Help about_Do                                   # Similar to While or Until
+
+
+
+_____________________________________----==== Powershell Profiles ====----____________________________________________
+ (https://os.cybbh.io/public/os/latest/002_powershell/pwsh_fg.html#_3_powershell_profiles)
+ 
+$Profile                                                                 #
+
+
+**Profile paths
+To determines whether individual profiles have been created on the local computer:
+Test-Path -Path $profile.currentUsercurrentHost                           # see if there's a user on the current host
+Test-Path -Path $profile.currentUserAllHosts
+Test-Path -Path $profile.AllUsersAllHosts
+Test-Path -Path $profile.AllUserscurrentHost
+
+if it comes back "True", investigate it using:
+Get-Content -path $profile.currentUsercurrentHost
+                          or any of the ones above
+                          
+                  
+
+Get-ExecutionPolicy -list                                               # Get a list and scope of all the execution policies
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -force    #changes the execution policy w/o the popup
+
+
+Start-Transcript                                        #quick way to record what you're doing and then run it as a script
+Stop-Transcript
+Get-Content [address location]
+
+
+
+
+
+
+
+_____________________________________----==== Links for the Course ====----____________________________________________
+_____________________________________----==== Links for the Course ====----____________________________________________
+_____________________________________----==== Links for the Course ====----____________________________________________
