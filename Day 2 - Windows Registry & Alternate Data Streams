@@ -20,7 +20,7 @@ There are five Registry Hives
   HKEY_CLASSES_ROOT  
   
   
-HKLM and HKU are the only root keys that Windows physically stores on files.
+HKLM and HKU are the only root keys that Windows physically stores on 
 
 
 
@@ -73,11 +73,50 @@ Can only export text .reg files
 
 Can only query HKLM and HKU remotely
 
+***************************************************************************************************************************
+
+*** Add a registry entry to make Powershell Run automatically when the system boots***
+reg add hklm\software\microsoft\windows\currentversion\run /v /testme /t REG_SZ /d c:\windows\system32\windowspowershell\v1.0\powershell.exe
+
+*** Remove the registry entry***
+reg delete hklm\software\microsoft\windows\currentversion\run /v /testme
+
+***************************************************************************************************************************
+
+_____________________________________----==== Registry Manipulation With Powershell ====----____________________________________________
+
+Certain Root Hives are loaded automatically into PSDrives (HKLM: and HKCU:); navigation of the registry is very similar to folder⇒file
+
+Minimum commands to know
+
+Query
+
+Get-ChildItem cmdlet gets the items in one or more specified locations.
+
+Get-ItemProperty cmdlet gets the items in one or more specified locations.
+
+Get-Item cmdlet gets the item at the specified location. It doesn’t get the contents of the item at the location unless you use a wildcard character (*) to request all the contents of the item.
+
+Modify
+
+Set-ItemProperty cmdlet changes the value of the property of the specified item. example, changing setting to :true or :false.
+
+Remove-ItemProperty cmdlet to delete registry values and the data that they store.
+
+Create
+
+New-Item cmdlet creates a new item and sets its value. In the registry, New-Item creates registry keys and entries.
+
+New-Itemproperty cmdlet creates a new property for a specified item and sets its value. Typically, this cmdlet is used to create new registry values, because registry values are properties of a registry key item.
 
 
 
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+
+
+HKCU and HKLM are seen as drives in Powershell
+
+  use Get-Item registry::hkey_user\
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
