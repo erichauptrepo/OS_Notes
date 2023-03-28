@@ -34,8 +34,15 @@ Get-Process | Get-Member -MemberType method | Measure-Object          # Count th
 (get-content words.txt | findstr -i "gaab").count                     # Count the number times "gaab" appears in a document
 (Get-Content words.txt | findstr -i [a,z]).count                      # Find how many times a or z show up in in a file
 (Get-Content words.txt | findstr -i "az").count                       # Find how many times "az" show up in in a file
+Get-Help about_Profiles                                               # Display help about profiles
 
+Test-Path -Path $profile.currentUsercurrentHost
+Test-Path -Path $profile.currentUserAllHosts
+Test-Path -Path $profile.AllUsersAllHosts
+Test-Path -Path $profile.AllUserscurrentHost
 
+gci -recurse -filter "hosts"                                          #search for file with the term "hosts" in the name
+Get-ChildItem -recurse | Get-Content | Select-String -pattern "dummy"
 
 
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
