@@ -41,11 +41,22 @@ Test-Path -Path $profile.currentUserAllHosts
 Test-Path -Path $profile.AllUsersAllHosts
 Test-Path -Path $profile.AllUserscurrentHost
 
-gci -recurse -filter "hosts"                                          #search for file with the term "hosts" in the name
+gci -recurse -filter "hosts"                                          # search for file with the term "hosts" in the name
 Get-ChildItem -recurse | Get-Content | Select-String -pattern "dummy"
 
 
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+_____________________________________----==== Windows Registry Scripts ====----____________________________________________
+
+Get-ChildItem                                                                           # Lists all the subkeys and contents in the current or specified directory
+Get-Item                                                                                # Get's the contents (values) of a registry key or subkey
+get-itemproperty 'HKLM:\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN'                  # gets the values inside the run subkey
+- Get-Item 'REGISTRY::HKEY_USERS\*\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN'       # get values from a specific user (fill in the user at the *)
+
+
+
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
