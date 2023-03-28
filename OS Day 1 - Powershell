@@ -126,7 +126,20 @@ Get-Content [address location]
 
 
 
+************************************************************************************************************************
+PowerShell supports several profile files and host programs, like Windows, support their own specific profiles. The profiles below are listed in order of precedence with the first profile having the highest precedence.
 
+Description	                                                 Path
+All Users, All Hosts                                         $PsHome\Profile.ps1
+
+All Users, Current Host                                      $PsHome\Microsoft.PowerShell_profile.ps1
+
+Current User, All Hosts                                      $Home\[My]Documents\Profile.ps1
+
+Current User, Current Host                                   $Home\[My ]Documents\WindowsPowerShell\Profile.ps1
+
+
+*************************************************************************************************************************
 
 
 
