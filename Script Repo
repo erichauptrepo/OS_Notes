@@ -28,7 +28,12 @@ Get-Content [FILENAME] | Measure-Object -Word                         # Show num
 Compare-Object (get-content "new.txt") (Get-Content "old.txt")        # Compare two files and output the differences
 get-content words.txt | sort -Descending | select -skip 20 -first 1   # Sort the file alphabetically and descending, then find the word on the 21st line (by skipping the first 20 lines and only showing the first
 (Get-Content .\words.txt | sort -Unique).count                        # Count and return number of unique words in a document
-
+Get-Process | Get-Member -MemberType method                           # List the methods for "get-process"
+Get-Process | Get-Member -MemberType method | Measure-Object          # Count the number of methods for "get-process"
+(Get-ChildItem .\Music\ -Directory | Measure-Object).Count            # Count the number of folders in a directory
+(get-content words.txt | findstr -i "gaab").count                     # Count the number times "gaab" appears in a document
+(Get-Content words.txt | findstr -i [a,z]).count                      # Find how many times a or z show up in in a file
+(Get-Content words.txt | findstr -i "az").count                       # Find how many times "az" show up in in a file
 
 
 
