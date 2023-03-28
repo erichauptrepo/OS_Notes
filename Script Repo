@@ -18,6 +18,16 @@ _____________________________________----==== Manipulate files / objects ====---
 Get-Content [file]                                                    # Read a file / Get content from inside a file
 Measure-Object                                                        # Count lines in a file, averaging numbers, and summing numbers etc...
 Select-String                                                         # Searches for text patterns in a string
+echo $HOME                                                            # Print out the user's home directory
+Get-Process | Get-Member -MemberType Property                         # Show properties available for the get-process cmdlet
+Get-Process | Get-Member -MemberType Property | Measure-Object        # Show number of properties available for the get-process cmdlet
+Get-Alias -Definition Get-ChildItem                                   # Show aliases for a property
+Get-WmiObject win32_service | select Name, Description | Where-Object {$_.Name -like "LegoLand"}        #Get the description of a specific service
+Get-Content [FILENAME] | Measure-Object -Word                         # Show number of words in a file
+(Get-ChildItem .\Videos\ -File | Measure-Object).Count                # Show number of files in a folder
+Compare-Object (get-content "new.txt") (Get-Content "old.txt")        # Compare two files and output the differences
+get-content words.txt | sort -Descending | select -skip 20 -first 1   # Sort the file alphabetically and descending, then find the word on the 21st line (by skipping the first 20 lines and only showing the first
+(Get-Content .\words.txt | sort -Unique).count                        # Count and return number of unique words in a document
 
 
 
