@@ -1,11 +1,81 @@
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+_____________________________________----==== Windows Registry ====----____________________________________________
+The Registry is comprised of Registry Hives which contain Keys, Subkeys and Values
+
+  Keys - are known as Registry Hives and can contain subkeys and values.
+
+  Subkeys - can contain subkeys and values
+
+  Values - contain data in specific formats.
+  
+There are five Registry Hives
+
+  HKEY_LOCAL_MACHINE
+
+  HKEY_USERS
+
+  HKEY_CURRENT_USERS
+
+  HKEY_CURRENT_CONFIG
+
+  HKEY_CLASSES_ROOT  
+  
+  
+HKLM and HKU are the only root keys that Windows physically stores on files.
 
 
 
 
 
 
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+
+
+_____________________________________----==== Registry Manipulation ====----____________________________________________
+
+View/manipulate the registry with a GUI
+regedit.exe
+
+GUI
+
+Located at C:\Windows\regedit.exe
+
+Can connect to a remote registry, but only using the PC’s workgroup or domain Name
+
+Needs the RemoteRegistry Service (svchost.exe / regsvc.dll) to be running to work
+
+Commonly disabled using group policy
+
+Can load hives files from disk to the active registry
+
+Can export binary .hiv files as well as text .reg files
+
+Can only query HKLM and HKU remotely
+
+******
+
+View/manipulate the registry via CMDLINE
+reg.exe
+
+CLI
+
+Located at C:\Windows\System32\reg.exe
+
+Can connect to a remote registry, using the PC’s NetBios Name or IP address
+
+Does not have to be in workgroup/domain. Only need username/password
+
+Needs the RemoteRegistry Service (svchost.exe / regsvc.dll) to be running to work
+
+Can load hives files from disk to the active registry
+
+Available in XP and beyond
+
+Can only export text .reg files
+
+Can only query HKLM and HKU remotely
+
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
