@@ -53,14 +53,123 @@ get-itemproperty 'HKLM:\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN'          
 - Get-Item 'REGISTRY::HKEY_USERS\*\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN'       # get values from a specific user (fill in the user at the *)
 
 
+Get-FileHash -Path "C:\Path\To\Your\File" -Algorithm SHA512                             # Get Sha512 hash of a file
 
 
 
 
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+
+_____________________________________----==== Linux Commands ====----____________________________________________
+****Find out Where You Are At ****
+
+pwd                                                                                   # Show your working directory
+which pwd                                                                             # Show pwd directory
+which bash                                                                            # find your bash directory
+uname -a                                                                              # find out info about the OS and system
+hostname -I                                                                           # Get the box IP
+who                                                                                   # Shows all users logged into the system (date   Time   IP they're coming from)
+who --ips                                                                             # removes the parentesis so you can pipe it in another command
+who -b
+who -r
+who -a                                                                                # Shows all Info for who
+
+***** Enumerate & Figure out what's going on on the box (Process IDs (PIDs)*****
+
+sudo -l                                                                               # find out what permissions the user you are logged in has
+ss (or netstat)                                                                       # show network connections or listening ports
+  netstat -a                                                                          # Show all Ports
+  netstat -t                                                                          # Show all TCP ports
+  netstat -u                                                                          # Show all UDP ports
+  netstat -at                                                                         # Show active TCP Ports
+  netstat -au                                                                         # Show active UDP ports
+  netstat -l                                                                          # Show all listening ports
+  netstat -s
+  netstat -st
+  netstat -anlb
+  netstat -anub
+  netstat -ss                                                                         # investigate SOCKETS
+ss -x                                                                                 # Show UNIX connections
+ss -a                                                                                 # Show all active ports
+
+
+ip addr (or ifconfig)                                                                 # Show network interfaces and configured IP addresses
+ip neigh (or arp)                                                                     # Show MAC addresses of devices observed on the network
+iproute (or route)                                                                    # Shows where packets are routed to leave the network
+iptables -l                                                            
+
+***** Navigating in Linux *****
+/                                                                                     # Absolute path to the root directory
+/etc                                                                                  # Absolute path to the default location for config files
+/whereis [object]                                                                     # Find the path to the [object]
+man [command]                                                                         # manual to learn about the command 
+ls                                                                                    # Show what's in the current directory
+ls -shilat                                                                            # Shows you everthing in the current directory
+cd                                                                                    # Change directory
+ls -ld $PWD/*                                                                         # Shows the absolute paths of the contents of the directory
+
+echo "hello World" > hello.txt                                                        # Creates or replaces hello.txt and fills it with "Hello World"
+echo "hello Again" >> hello.txt                                                       # Appends hello.txt
+
+
+
+ls -Rlisa /etc | grep syslog                                                          # Execute ls with arguments, then send the output to grep command using a pipe | to filter for the string syslog.
+ls -Rlisa /etc 2> /dev/null | grep syslog                                             # Execute ls with arguments, captures only the errors, store the output to null, then send the output to grep command using a pipe | to filter for the string syslog.
+| 
+
+
+# this for loop finds all the objects in the /etc directory and outputs on each line the name and "is a directory" or "is a file"
+for object in $objects; do if [ -d $object ] ; then echo "$object is a directory"; else echo "$object is a file"; fi;done
+
+
+
+_____________________________________----==== Linux File Systems ====----____________________________________________
+
+
+cat /etc/passwd | grep garviel                #prints out the passwrd directory, then sends it to grep and returns the entry for garviel
+cat /etc/group | grep garviel                 # Prints out the group directory, sends it to grep and returns the garviel entry
+find / -perm /4000 2> /dev/null -exec ls -la {} \;       # Find all the things that match my criteria (-perm /4000), send all errors to null , then execute ls -la on the results
+              ^-- SUID
+              2000 would be GUID
+              6000 both SUID and GUID
+
+ls -l /etc | awk -F " " '{print$3","$4","$9}' > file.csv
+                  ^- tells the command that the next thing in the quotations is the delimiter (space)
+                  
+                  
+cat /etc/passwd | grep root | sed s/root/bacon/g        # prints out the root value of objects in the passwd directory and replaces root with bacon
+
+
+
+
+
+
+
+
+
+
+_____________________________________----==== Manipulating Files in Linux ====----____________________________________________
+
+man -K [keyword]                                                # Search Manual pages for a keyword
+sha512sum [file.ext]                                            # Get the hash for a file [file.ext]
+
+cat /etc/passwd | cut -d ':' -f 5 | grep -v '^$'                # Search a directory | identify the fields with delimiters with -d ':', define which field you want to see (-f 5), then remove the empty fields (| grep -v '^$')
+
+
+_____________________________________----==== Encrypting / Decrypting Files ====----____________________________________________
+File [file]                                                         # Get the information about the object [file]
+
+unzip [zippedfile]                                                  # Unzip the file
+openssl enc -aes128-cbc -d -in cipher -out secrets -k AES128Key     # Decrypt the file with openssl using aes128, decrypt (-d) in and out file -k is the key
+
+find -type f -exec wc -l {} +                                       # list number of lines all files in current directory
+
+
+
+
+
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
