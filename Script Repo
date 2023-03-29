@@ -103,9 +103,12 @@ iptables -l
 /whereis [object]                                                                     # Find the path to the [object]
 man [command]                                                                         # manual to learn about the command 
 ls                                                                                    # Show what's in the current directory
+ls -al                                                                                # Shows you long list of details about the directory
 ls -shilat                                                                            # Shows you everthing in the current directory
 cd                                                                                    # Change directory
 ls -ld $PWD/*                                                                         # Shows the absolute paths of the contents of the directory
+
+find / -name Bibliotheca -type d                                                      # Find the location of the directory "Bibliotheca"
 
 echo "hello World" > hello.txt                                                        # Creates or replaces hello.txt and fills it with "Hello World"
 echo "hello Again" >> hello.txt                                                       # Appends hello.txt
@@ -123,6 +126,10 @@ for object in $objects; do if [ -d $object ] ; then echo "$object is a directory
 
 
 _____________________________________----==== Linux File Systems ====----____________________________________________
+
+
+drwxr-xr-x       # d:rwxr-xr-x     The d is directory, rwxr is permissions for the owner,  xr is permissions for the group, x is 
+
 
 
 cat /etc/passwd | grep garviel                #prints out the passwrd directory, then sends it to grep and returns the entry for garviel
@@ -162,7 +169,6 @@ unzip [zippedfile]                                                  # Unzip the 
 openssl enc -aes128-cbc -d -in cipher -out secrets -k AES128Key     # Decrypt the file with openssl using aes128, decrypt (-d) in and out file -k is the key
 
 find -type f -exec wc -l {} +                                       # list number of lines all files in current directory
-
 
 
 
