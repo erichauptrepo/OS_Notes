@@ -114,10 +114,12 @@ echo "hello World" > hello.txt                                                  
 echo "hello Again" >> hello.txt                                                       # Appends hello.txt
 
 
-
 ls -Rlisa /etc | grep syslog                                                          # Execute ls with arguments, then send the output to grep command using a pipe | to filter for the string syslog.
 ls -Rlisa /etc 2> /dev/null | grep syslog                                             # Execute ls with arguments, captures only the errors, store the output to null, then send the output to grep command using a pipe | to filter for the string syslog.
-| 
+
+
+Get-ItemProperty HKLM:\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUNONCE              # get the value of the RUNONCE registry subkey
+
 
 
 # this for loop finds all the objects in the /etc directory and outputs on each line the name and "is a directory" or "is a file"
@@ -156,6 +158,9 @@ sha512sum [file.ext]                                            # Get the hash f
 cat /etc/passwd | cut -d ':' -f 5 | grep -v '^$'                # Search a directory | identify the fields with delimiters with -d ':', define which field you want to see (-f 5), then remove the empty fields (| grep -v '^$')
 
 
+Get-Acl                                                                     # Show permissions of a file
+
+
 _____________________________________----==== Encrypting / Decrypting Files ====----____________________________________________
 File [file]                                                         # Get the information about the object [file]
 
@@ -183,6 +188,8 @@ bcdedit /set {bootmgr} timeout 300                                          # Ch
 shutdown /r /t 0                                                            # tell the box to shutdown /restart /time-to-wait /time-integer
 
 dir /A:h                                                                    # Search for hidden directories
+
+
 
 
 
