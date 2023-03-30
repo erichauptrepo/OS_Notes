@@ -148,12 +148,6 @@ cat /etc/passwd | grep root | sed s/root/bacon/g        # prints out the root va
 
 
 
-
-
-
-
-
-
 _____________________________________----==== Manipulating Files in Linux ====----____________________________________________
 
 man -K [keyword]                                                # Search Manual pages for a keyword
@@ -171,7 +165,24 @@ openssl enc -aes128-cbc -d -in cipher -out secrets -k AES128Key     # Decrypt th
 find -type f -exec wc -l {} +                                       # list number of lines all files in current directory
 
 
+_____________________________________----==== Windows  ====----____________________________________________
+brocess for Boot Control Device Editing
 
+bcdedit /?
+bcdedit
+bcdedit /export [C:\Lion_BCD]                                               # pick your location in the []
+  *make your changes in an editor
+bcdedit /import [C:\Lion_BCD]                                               # upload your changed settings back
+bcdedit /set {<identifier>} description "Windows 7 - Lion Den"              # Modify the description of the bootloader
+
+
+
+bcdedit /deletevalue {current} [value you want to delete]                   # Deletes a value out of the bcd
+bcdedit /set {bootmgr} timeout 300                                          # Change the timeout of the partition to give you time to edit values, make changes, etc...
+
+shutdown /r /t 0                                                            # tell the box to shutdown /restart /time-to-wait /time-integer
+
+dir /A:h                                                                    # Search for hidden directories
 
 
 
