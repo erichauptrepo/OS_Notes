@@ -107,6 +107,33 @@ ls -al                                                                          
 ls -shilat                                                                            # Shows you everthing in the current directory
 cd                                                                                    # Change directory
 ls -ld $PWD/*                                                                         # Shows the absolute paths of the contents of the directory
+lsblk                                                                                 # shows all the partitions, disks, etc. Used to look at Master Boot Record?
+ls -halF                                                                              # look into the runlevel directory 0 (rc0.d)
+  ls -halF /etc/rc.d/                                                                # look into the runlevel directory 0 (rc0.d)
+                [rc1.d, rc2.d, rc3.d, rc4.d, rc5.d, rc6.d]
+                
+                
+ls -lisa /lib/systemd/system/default.target                                           # Show default target
+
+
+
+sudo xxd                                                                              # Hex dump
+  sudo xxd -s 446 -l 64 -g 1 /dev/sda          # Hex dump of your MBR, skipping to the partitions (-s 446 skips boot strap), reduce length to 64 bites (-l 64), group by hex pairs (-g 1), in location (/dev/sda)
+
+
+dd                                                                                    # copies the disk down to the binary
+  sudo dd if=/dev/sda bs=512 count=1 of=/home/[myusername]/MBRCopy                    # Copies the MBR (/dev/sda) to my home directory
+  sudo dd if=/home[username]/MBRCopy bs=512 count=1 | md5sum
+  
+  
+  dd if=mbroken skip=446 bs=1 count=16 | md5sum                                       # Copy mbroken as the infile, skip the first 446 bytes, with a length of 16 bytes, then pipe it to make an md5 hash
+  
+  
+cat /boot/grub/grub.cfg                                                               # Print the contents of /boot/grub/grub.cfg to the screen
+
+ltrace -S cat /etc/passwd                                                             # Show all the system (-S) calls when running cat /etc/passwd
+
+  dd
 
 find / -name Bibliotheca -type d                                                      # Find the location of the directory "Bibliotheca"
 
@@ -124,7 +151,6 @@ Get-ItemProperty HKLM:\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUNONCE        
 
 # this for loop finds all the objects in the /etc directory and outputs on each line the name and "is a directory" or "is a file"
 for object in $objects; do if [ -d $object ] ; then echo "$object is a directory"; else echo "$object is a file"; fi;done
-
 
 
 _____________________________________----==== Linux File Systems ====----____________________________________________
@@ -148,13 +174,35 @@ ls -l /etc | awk -F " " '{print$3","$4","$9}' > file.csv
 cat /etc/passwd | grep root | sed s/root/bacon/g        # prints out the root value of objects in the passwd directory and replaces root with bacon
 
 
+file /sbin/init                # USE THIS ONE FIRST                 # find out whether you're running init or systemd (sysV or Init System)
+
+ps --no-headers -o comm 1                                           # find out whether you're running init or systemd (sysV or Init System)
+
+ls/user/lib/systemd
+ls/user/lib/systemd
+
+
+cat /etc/inittab                                                    # check your run level, see if there's malware attached to a runlevel
+
+systemctl get-default                                               # if you're on a systemd, shows you the default target
+systemctl show-graphical.target                                     # show the graphical target for systemctl
+systemctl list-de
+systemctl show -p Wants graphical.target                            # show the list of wants for systemctl's graphical target
+systemctl cat ssh.service                                           # see if a unit has the SSH service
+
+
+
+cat /etc/profile                                                    #
+
+
+
 
 
 _____________________________________----==== Manipulating Files in Linux ====----____________________________________________
 
 man -K [keyword]                                                # Search Manual pages for a keyword
 sha512sum [file.ext]                                            # Get the hash for a file [file.ext]
-
+`
 cat /etc/passwd | cut -d ':' -f 5 | grep -v '^$'                # Search a directory | identify the fields with delimiters with -d ':', define which field you want to see (-f 5), then remove the empty fields (| grep -v '^$')
 
 
