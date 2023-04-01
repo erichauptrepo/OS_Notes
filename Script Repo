@@ -34,6 +34,10 @@ Get-Process | Get-Member -MemberType method | Measure-Object          # Count th
 (get-content words.txt | findstr -i "gaab").count                     # Count the number times "gaab" appears in a document
 (Get-Content words.txt | findstr -i [a,z]).count                      # Find how many times a or z show up in in a file
 (Get-Content words.txt | findstr -i "az").count                       # Find how many times "az" show up in in a file
+(Get-Content words.txt | Select-String 'a{2}[a-g]').count             # Find how many times a appears twice AND is followed by a letter a-g (aac, aad, aag, etc.)
+
+
+
 Get-Help about_Profiles                                               # Display help about profiles
 
 Test-Path -Path $profile.currentUsercurrentHost
@@ -51,6 +55,10 @@ Get-ChildItem                                                                   
 Get-Item                                                                                # Get's the contents (values) of a registry key or subkey
 get-itemproperty 'HKLM:\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN'                  # gets the values inside the run subkey
 - Get-Item 'REGISTRY::HKEY_USERS\*\SOFTWARE\MICROSOFT\WINDOWS\CURRENTVERSION\RUN'       # get values from a specific user (fill in the user at the *)
+
+Get-ItemProperty HKLM:\System\CurrentControlset\enum\usbstor                            # See what USB Devices are/were used on a system
+get-childitem 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\ProfileList'          # See list of User Profiles in the registry
+GCI 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles\'          # See list of networks in the registry
 
 
 Get-FileHash -Path "C:\Path\To\Your\File" -Algorithm SHA512                             # Get Sha512 hash of a file
@@ -193,6 +201,8 @@ systemctl cat ssh.service                                           # see if a u
 
 
 cat /etc/profile                                                    #
+
+
 
 
 
