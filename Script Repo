@@ -40,6 +40,12 @@ Get-Process | Get-Member -MemberType method | Measure-Object          # Count th
 
 Get-Help about_Profiles                                               # Display help about profiles
 
+
+
+
+
+
+
 Test-Path -Path $profile.currentUsercurrentHost
 Test-Path -Path $profile.currentUserAllHosts
 Test-Path -Path $profile.AllUsersAllHosts
