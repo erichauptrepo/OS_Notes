@@ -16,6 +16,8 @@ http://10.50.21.56:8000/challenges
 RangeMap
 https://os.cybbh.io/public/os/latest/index.html
 
+OVPN Setup:
+https://cctc.cybbh.io/students/students/latest/openvpn-guide.html
 
 
 
