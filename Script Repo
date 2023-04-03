@@ -322,6 +322,8 @@ sc query | find /c ","                                      # Counts running ser
 
 sc queryex                                                  # runs the PID also, in addition to the sc query command
 
+sc query state=all                                          # Show all services (regardless of state)
+
 
 sc queryex eventlog                                         # Shows the eventlog
 
@@ -360,8 +362,137 @@ ichbinbash action does this = tcp listening port 6.6.6.6 start and sleep every 6
 
 
 
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+_____________________________________----==== Windows Services Challenges ====----____________________________________________
+
+
+Windows_Services_Basics_6
+Services have a name and display name, which could be different. What is the service name of the only Totally-Legit service?
+
+
+                  Get-Service -name Totally-Legit                              
+                                Legit
+                                
+                                
+Windows_Services_Basics_7
+Figure out the SID of the only Totally-Legit service.
+
+Example: S-1-5-80-159957745-2084983471-2137709666-960844832-[1182961511]
+
+Submit only the [bracketed] portion of the SID.
+
+HINT: Run the command on the service name, not the display name.
+
+      IN POWERSHELL:
+            get-service -name Totally-Legit                RETURNS "Legit" as the name
+      
+      IN CMD:
+            sc showsid Legit                                RETURNS S-1-5-80-159957745-2084983471-2137709666-960844832-1182961511
+
+
+Win_Process_Situational_Awareness_1
+10
+What are the permissions for NT SERVICE\TrustedInstaller on spoolsv.exe? Copy the permissions from your shell.
+
+HINT: Use Sysinternals tools.
+
+
+find Spoolsv in Process Exploerer
+  Mouse over to get the absolute directory
+  
+use accesschk in cmd
+  accesschk c:\windows\system32\spoolsv.exe                             #Returns RW for NT Service
+  
+  
+Win_Process_Situational_Awareness_5
+While examining the Windows Defender Firewall, what is the LogAllowedConnections setting set to, for the Public profile?
+
+googled "LogAllowedConnections"
+Found https://support.moonpoint.com/os/windows/software/security/firewall/advfirewall.php
+netsh advfirewall show currentprofile                                      # Returned Disable
+
+
+Windows_Hidden_Processes_7
+A nonstandard port has been opened by possible malware on the system. Identify the port.
+
+Creds:
+Machine: Workstation1 (RDP from Admin-Station)
+login: student
+password: password
+
+  Used TCPView to see the ports
+  went to local ports.... found 6666
+  
+  ALTERNATE WAY: powershell netstat -an
+  
+  
+  
+ Windows_Hidden_Processes_8
+Determine what mechanism opened the port from hidden_processes_7. The flag is the name of the file.
+
+Hint: The file is not legit.
+  TCPview shows powershell.exe
+  Go to Autoruns and look for the task using Powershell.exe
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+
+           
+
+
+
+_____________________________________----==== Windows UAC Challenges ====----____________________________________________
+
+Windows_UAC_Basics_4
+The flag is the RequestedExecutionLevel of the schtasks.exe file.
+
+          .\sigcheck.exe -m C:\Windows\System32\schtasks.exe -accepteula
+          
+          
+          
+Windows_UAC_Basics_6
+Determine which UAC subkey property shows whether UAC is enabled or not. The flag is the data value in that property.
+
+      Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\
+                            EnableLUA : 4919
+                            
+                            
+                            
+Windows_UAC_Basics_7
+Provide the name of the UAC [Registry subkey] property that determines what level UAC is set to for admin privileges (Example UAC levels: Default, Always, Notify).
+  HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+  Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\
+            Subkey is ConsentPromptBehaviorAdmin 
+  
+
+
+
+
+
+
+
+
+
+
+
+_____________________________________----==== Windows UAC Class ====----____________________________________________
+
+
+sigcheck -m C:\windows\System32\slui.exe -accepteula
+sigcheck -m C:\windows\Regedit.exe                                            # Views the signatures. Specifically the requested execution level
+
+
+
+
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
