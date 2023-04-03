@@ -1,0 +1,27 @@
+_____________________________________----==== Questions for Instructors ====----____________________________________________
+
+
+Set up an Ops Station?
+
+
+sudo xxd -s 446 -l 64 -g 1 /dev/sda    look at the hex dump for just the partitions in /dev/sda
+
+**Make sure you back up the MBR before you start messing with it
+
+
+
+
+Where to look for malware?
+
+profiles
+run levels
+
+MBR
+
+Look at MBR in hex using the xxd command
+use DD to make an exact copy of the MBR to a home directory
+
+
+
+
+_____________________________________----==== Start / Stop Processes in Powershell ====----____________________________________________
