@@ -225,6 +225,13 @@ cat /etc/passwd | cut -d ':' -f 5 | grep -v '^$'                # Search a direc
 Get-Acl                                                                     # Show permissions of a file
 
 
+-=-=-=-=-=Working the Not Echo Problem =-=-=-=-=-=-
+
+
+echo $PATH | tr ':' '\n' | xargs -I % sh -c 'echo %; ls %' > testscript         # list the directories in $PATH, and then for each directory it will list the executables using ls. The tr command replaces the colons in $PATH with newlines, and the xargs command executes the ls command for each directory in $PATH.
+comm -12 <(sort paths) <(sort newbinaries.txt)                                  # Compare paths and the list, return only the matched string---DIDN"T WORK
+grep -i -f newbinaries.txt paths                                                # return any strings in newbinaries that are in paths
+
 _____________________________________----==== Encrypting / Decrypting Files ====----____________________________________________
 File [file]                                                         # Get the information about the object [file]
 
@@ -258,7 +265,50 @@ dir /A:h                                                                    # Se
 
 
 
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+_____________________________________----==== Windows Process Validity ====----____________________________________________
+
+
+get-process | select -first 10
+
+Get-process | get-Member
+get-process | select name, id, description
+get-process | select name,id,description, | sort-object -property id
+get-process -Name smss
+get-help get-process
+get-process smss,csrss,lsass | sort -property id
+
+
+Get-Process chrome | foreach {$a} {$_.Modules}                                    # shows list of all modules for chrome
+
+
+Get-Process chrome | foreach {$a} {$_.Modules} | Where-Object modulename -like "*chrome*"    # pulls only modules/dlls used by Chome with "chrome" in the name and a file location
+
+get-process | select name, id, description | where path -notmatch "system32"
+
+
+    #P ull only processes where the path isn't in system 32 OR program files ----Looking for wierd process locations
+
+Get-Process | select Name,Id,path | where {($_.path -NotMatch "system32" -and $_.path -Notmatch "program files")}
+
+    # CimInstance lets you see the parent process ID
+Get-CimInstance Win32_Process | select name,processid,ParentProcessId | sort processid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
