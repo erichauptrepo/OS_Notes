@@ -294,6 +294,57 @@ Get-Process | select Name,Id,path | where {($_.path -NotMatch "system32" -and $_
 Get-CimInstance Win32_Process | select name,processid,ParentProcessId | sort processid
 
 
+    # use this to get process ID and Description
+
+Get-CimInstance Win32_process | select name,processid,description | ft-wrap
+
+
+Get-service | where {$_.status -eq "running"}               # get running services
+Get-service | where {$_.status -ne "running"}               # get services that are NOT running for whatever reason
+
+(Get-service | where {$_.status -eq "running"}).count       # returns the count of the number of services running only
+
+Get-ScheduledTask | select * | select -First 1              # Get all the information about the first scheduled task
+
+
+Get-NetTCPConnection                                        # Show all Connections
+
+Get-NetTCPConnection -State Established                     # Shows all Established connections
+
+
+
+
+
+
+-=-=-= in CMD =-=-=-
+
+sc query | find /c ","                                      # Counts running services in cmd
+
+sc queryex                                                  # runs the PID also, in addition to the sc query command
+
+
+sc queryex eventlog                                         # Shows the eventlog
+
+sc qdescription eventlog                                    # describes the service "eventlog"
+
+sc showsid eventlog                                         # Shows the SID of the eventlog and the status
+
+sc enumdepend eventlog                                      # Shows the services dependent upon "eventlog"
+
+netstat                                                     # shows all active connections
+
+netstat -bona                                               # Shows all TCP/UDP connections with ports in numerical form with PID and executable associated to the connections
+
+psexec -s \\file-server cmd.exe                             # opened up a cmd prompt as the system (root/god mode)
+
+psexec -s -i regedit                                        # opens up regedit on the system as 
+
+
+
+
+
+ichbinbash action does this = tcp listening port 6.6.6.6 start and sleep every 60 seconds
+
 
 
 
