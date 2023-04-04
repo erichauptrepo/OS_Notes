@@ -493,7 +493,76 @@ sigcheck -m C:\windows\Regedit.exe                                            # 
 
 
 
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+_____________________________________----==== linux process validity class ====----____________________________________________
+htop
+
+
+
+
+ps -ppid 2 -lf
+
+ps -elf                                                                         #
+
+ps -elf --forest                                                               # Shows the list of processes in a tree -type format.. good to see the tree breakdown of processes from parent to child
+
+
+jobs                                                                            # View only the running background processes
+
+fg[1]  (example fg 1)                                                           # Bring the background job id [1] to the foreground
+
+bg[1]  (example bg 2)                                                           # Bring the foreground job id [1] to the background
+
+ctrl+z                                                                          # Pauses a job you just interacted with
+
+ls /etc/systemd/system
+
+systemctl get-default    #show default system target
+
+systemctl isolate [target-name].target
+
+systemctl status [service-name]                                                  # manage startup services
+systemctl start [service-name]                                                   # Start a Service
+          stop                                                                   # Stop a service
+          enable                                                                 #
+          disable                                                                #
+
+chkconfig           # Managing configuration of a sysd system 
+sysv-c-conf         # for managing configuration of a sysv system
+
+
+systemctl --type=service                                                         # show a list of all services in a system
+
+systemctl lists-units                                                            # List all units on a system
+
+                      --all                                                      # Lists all units there were ever on a system
+                      
+systemctl status ssh.service                                                     # Info on the ssh service (loaded(or not), active, process, PID, tasks, CGroup)
+
+ls -shila /etc/init.d                                                            # show what's in init.d
+
+crontab -e                                                                       # edit or delete cron jobs
+
+sudo !!                                                                           # Attempt to escalate privileges on a system
+
+sudo lsof | head                                                                 # list all open files being used by every process                                                     
+
+lsof -R [PPID]
+
+lsof -u user
+
+lsof -c service
+
+ls-l /proc
+
+sudo ls -l /proc/1595
+
+lsof -i                                                                           #look up ip address
+
+netstat -pona
+netstat -bona
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
