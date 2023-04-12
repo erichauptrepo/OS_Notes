@@ -92,8 +92,6 @@ GCI 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles\'  
 Get-FileHash -Path "C:\Path\To\Your\File" -Algorithm SHA512                             # Get Sha512 hash of a file
 
 
-####################################################  Getting User SID and Info    ################################################
-
 get-localuser                                                                           # Gets the information about the user. like the SID
 
 get-wmiobject -class Win32_UserAccount                                                  # Get information about the object
@@ -119,6 +117,24 @@ $run = get-item -Path "REGISTRY::HKEY_Users:\$sid\Software\Microsoft\Windows\Cur
 $runOnce = get-item -Path "REGISTRY::HKEY_Users:\$sid\Software\Microsoft\Windows\CurrentVersion\RunOnce" -ErrorAction SilentlyContinue
 
 
+#_______________________________________________________  Alternate DataStreams    _________________________________________________#
+###########################################################  Only Works on Windoes NTFS Systems  #########################################################
+
+
+#_______________________________________________________  Windows Boot Process    _________________________________________________#
+###########################################################    #########################################################
+How to Determine if you're using BIOS or EUFI?
+  Check winload....
+    Winload.efi is EUFI
+    Winload.exe is BIOS
+    
+sc query 
+
+
+
+
+#_______________________________________________________  Linux Essentials    _________________________________________________#
+###########################################################  OR JUST USE AUTORUNS  #########################################################
 
 
 _____________________________________----==== Linux Commands ====----____________________________________________
@@ -240,6 +256,10 @@ file /sbin/init                # USE THIS ONE FIRST                 # find out w
 
 ps --no-headers -o comm 1                                           # find out whether you're running init or systemd (sysV or Init System)
 
+ps 1                                                                # will show /sbin/init if you're systemV, will show /usr/lib/systemd/systemd if systemD
+
+
+
 ls/user/lib/systemd
 ls/user/lib/systemd
 
@@ -313,7 +333,41 @@ dir /A:h                                                                    # Se
 
 
 
-_____________________________________----==== Windows Process Validity ====----____________________________________________
+###########_____________________________________----==== Windows Process Validity ====----____________________________________________#######
+
+### TEST REVIEW ###
+Look for any suspicious port numbers
+#Suspicious port id.... look for sequential or repeating port numbers (12345, or 8888)
+
+
+# Install SYSINTERNALS
+net use * http://live.sysinternals.com
+
+Run TCPview
+./TCPview (run from the drive or use the address *example * z:./TCPview)
+
+Gives you the PID
+
+(Command Prompt)
+netstat -bona (or -pona)
+
+View AUTORUNS
+
+and watch for triggering mechanisms....
+See the scheduling tasks 
+
+Look at the NAME, and the path they're being run from... if it's not from the System32 directory... it's suspicious
+
+
+LOOK AT Scheduled TASKS
+Get-ScheduledTask | Select *
+  # See the timming and triggers and paths
+  
+
+INSIDE REGEDIT, look at the locations that may be closed
+
+### END TEST REVIEW ###
+
 
 
 get-process | select -first 10
@@ -326,17 +380,20 @@ get-help get-process
 get-process smss,csrss,lsass | sort -property id
 
 
-Get-Process chrome | foreach {$a} {$_.Modules}                                    # shows list of all modules for chrome
+Get-Process chrome | foreach {$a} {$_.Modules}                                                    # shows list of all modules for chrome
 
 
-Get-Process chrome | foreach {$a} {$_.Modules} | Where-Object modulename -like "*chrome*"    # pulls only modules/dlls used by Chome with "chrome" in the name and a file location
+Get-Process chrome | foreach {$a} {$_.Modules} | Where-Object modulename -like "*chrome*"         # pulls only modules/dlls used by Chome with "chrome" in the name and a file location
 
 get-process | select name, id, description | where path -notmatch "system32"
 
 
-    #P ull only processes where the path isn't in system 32 OR program files ----Looking for wierd process locations
+    #Pull only processes where the path isn't in system 32 OR program files ----Looking for wierd process locations
 
 Get-Process | select Name,Id,path | where {($_.path -NotMatch "system32" -and $_.path -Notmatch "program files")}
+
+
+
 
     # CimInstance lets you see the parent process ID
 Get-CimInstance Win32_Process | select name,processid,ParentProcessId | sort processid
@@ -547,9 +604,9 @@ htop
 
 
 
-ps -ppid 2 -lf
+ps -ppid 2 -lf                                                                 # Displays only kthreadd processes (so, only kernel-space processes)
 
-ps -elf                                                                         #
+ps -elf                                                                        # Displays processes
 
 ps -elf --forest                                                               # Shows the list of processes in a tree -type format.. good to see the tree breakdown of processes from parent to child
 
@@ -564,7 +621,7 @@ ctrl+z                                                                          
 
 ls /etc/systemd/system
 
-systemctl get-default    #show default system target
+systemctl get-default                                                           # show default system target
 
 systemctl isolate [target-name].target
 
@@ -592,17 +649,21 @@ crontab -e                                                                      
 
 sudo !!                                                                           # Attempt to escalate privileges on a system
 
-sudo lsof | head                                                                 # list all open files being used by every process                                                     
+sudo lsof | head                                                                 # list all open files being used by every process    
+
+sudo -l                                                                          # see what super user options you have
 
 lsof -R [PPID]
 
 lsof -u user
 
-lsof -c service
+lsof -c service                                                                   # Show a list of files open for services
+
+lsof -c sshd                                                                      # Show a list of files open for SSHD
 
 ls-l /proc
 
-sudo ls -l /proc/1595
+sudo ls -l /proc/[1595]    # list contentts for the [PID] directory
 
 lsof -i                                                                           #look up ip address
 
@@ -611,10 +672,134 @@ netstat -bona
 
 
 
+
+
+
+
+
+
+
+#    ##### Test Review  ##### #
+
+TOP
+HTOP
+
+PS-ELF
+
+System cron jobs           /etc/crontab
+
+sudo ls -shilat /var/spook/cron/crontabs
+
+grep -R *.txt /etc 2> /dev/null                                                               # Search Recusively throughout etc for any .txt
+grep -R '*.txt' /lib.systemd/system 2> /dev/null                                              # Search Recursively through systemd
+systemctl get-default
+systemctl show
+systemctl show graphical.target
+
+cat /etc/provile
+cat /etc/environment
+
+
+
+User cron jobs             /var/spool/cron/crontabs/
+
+_____________________________________----==== Windows Auditing and Logging ====----____________________________________________
+# GET USER SID
+Get-LocalUser | select Name,SID
+
+
+
+
+
+
+
+
+
+_____________________________________----==== Linux Essentials Review ====----____________________________________________
+
+Find out what system you are on first
+
+systemctl -show
+
+
+# Understanding awk#
+  ls -l /etc                                                                                  # outputs the long form of what's in /etc
+
+  ls -l /etc | awk -F " " '{print$3","$4","$9}' > files.csv                                   # Send the output from ls -l into awk, then set the delimiter to blank space, then tell it to print fields $3,$4,$9, finally send them to a csv file.
+
+# Understanding Grep
+
+  Grep -R                                                                                     # Recursive search
+  
+  
+# Directories of importance
+  /    # Root
+  /bin   #
+  /etc/environment      #can hold malicous scripts
+  /etc/profile          # 
+  /etc/bash.bashrc      # Profile to look at
+  /etc/profile.d
+  
+  
+
+
+
+RUN LEVELS QUESTIONS ARE IN THE LINUX BOOT FG
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
-_____________________________________----==== Procedures to SSH to a box ====----____________________________________________
+
+
+lsblk
+
+sudo xxd                 # Hex dump of MBR
+
+dd                       # to the bit copy
+
+
+
+
+
+
+_____________________________________----==== LInux Logging and Auditing Test Review ====----____________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
 _____________________________________----==== Procedures to SSH to a box ====----____________________________________________
