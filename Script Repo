@@ -2,6 +2,9 @@ _____________________________________----==== Start / Stop Processes in Powershe
 
 Start-Process Chrome                                                  # Starts Chrome
 (Get-Process Chrome*).kill()                                          # Stop chrome in PS
+Get-Verb                                                              # lists all the processes and commands for powershell
+explainpowershell.com                                                 # website to walk through how to use powershell
+
 
 
 _____________________________________----==== WmiObject ====----____________________________________________
@@ -41,7 +44,15 @@ Get-Process | Get-Member -MemberType method | Measure-Object          # Count th
 Get-Help about_Profiles                                               # Display help about profiles
 
 
+Order of precedence 
 
+All Users, All Hosts                            $PsHome\Profile.ps1
+
+All Users, Current Host                         $PsHome\Microsoft.PowerShell_profile.ps1
+
+Current User, All Hosts                         $Home\[My]Documents\Profile.ps1
+
+Current User, Current Host                      $Home\[My ]Documents\WindowsPowerShell\Profile.ps1
 
 
 
@@ -50,6 +61,17 @@ Test-Path -Path $profile.currentUsercurrentHost
 Test-Path -Path $profile.currentUserAllHosts
 Test-Path -Path $profile.AllUsersAllHosts
 Test-Path -Path $profile.AllUserscurrentHost
+
+#######################################################    Example    #####################################################################
+Test-Path -Path $profile.currentUsercurrentHost
+
+# if the testpath comes back true
+
+get-content $profile.currentUsercurrentHost
+
+# will return what's in it
+
+#######################################################    /Example    #####################################################################
 
 gci -recurse -filter "hosts"                                          # search for file with the term "hosts" in the name
 Get-ChildItem -recurse | Get-Content | Select-String -pattern "dummy"
@@ -69,6 +91,32 @@ GCI 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles\'  
 
 Get-FileHash -Path "C:\Path\To\Your\File" -Algorithm SHA512                             # Get Sha512 hash of a file
 
+
+####################################################  Getting User SID and Info    ################################################
+
+get-localuser                                                                           # Gets the information about the user. like the SID
+
+get-wmiobject -class Win32_UserAccount                                                  # Get information about the object
+
+WMIC useraccount list full                                                              # Gives a list of user accounts on a system with info
+
+get-aduser -filter *                                                                    # gets info on user in active directory
+
+
+
+
+
+
+################################## Get the list of values under HKLM:\Software\Microsoft\Windows\Current    ##########################################
+  ##### Locations to look at if we think there is MALWARE running to find out where it might be running ####
+
+$run = get-item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\Run"
+$runOnce = Get-Item -Path "HKLM:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+
+#### Get the list of values under HKU
+
+$run = get-item -Path "REGISTRY::HKEY_Users:\$sid\Software\Microsoft\Windows\CurrentVersion\Run" -ErrorAction SilentlyContinue
+$runOnce = get-item -Path "REGISTRY::HKEY_Users:\$sid\Software\Microsoft\Windows\CurrentVersion\RunOnce" -ErrorAction SilentlyContinue
 
 
 
