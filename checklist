@@ -10,7 +10,10 @@ Get new admin station setup
   Get MobaXterm, install, run as ADMINISTRATOR
   Setup Linux Box
   Setup Windows Box
-  Start with 
+  Start with Windows Box
+  
+  # Install SYSINTERNALS
+net use * http://live.sysinternals.com
 
 
 
@@ -78,7 +81,7 @@ taskkill /pid <PID> /f
 
 ##### # Looking for malicious activity on a port with TCPVIEW # #####
 
-'''Launch TCPView as an administrator.
+'''Launch TCPView as an administrator.  (run from the drive or use the address *example * z:./TCPview)
 
 Click the column header for the "Local Port" column to sort the list of connections by local port number.
 Locate the connection you are interested in and note its process ID (PID) in the "PID" column.
@@ -91,7 +94,12 @@ Once you have identified a suspicious connection, double-click on it to view mor
 
 If you suspect that the process is malicious, you can terminate it by right-clicking on the connection and selecting "End Process".
 '''
+# CimInstance lets you see the parent process ID
+Get-CimInstance Win32_Process | select name,processid,ParentProcessId | sort processid
 
+
+# use this to get process ID and Description
+Get-CimInstance Win32_process | select name,processid,description | ft-wrap
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=REGISTRY-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # Searching for malware/maliciousness in Registry #
@@ -131,15 +139,17 @@ If the file is located in a non-standard location, such as a temporary folder, o
 Some malware may use obfuscated or encrypted command-line parameters to evade detection, so be sure to scrutinize the details carefully.
 '''
 
+'''
+and watch for triggering mechanisms....
+See the scheduling tasks 
+
+Look at the NAME, and the path they're being run from... if it's not from the System32 directory... it's suspicious
+'''
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=Check Filesystem=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 # Use the Get-Process cmdlet to list all running processes and their associated file paths
 Get-Process | Select-Object Name, Path | Sort-Object Path
 #lists all running processes and their associated file paths, sorted by file path. You can look for any suspicious processes or file paths that may be related to malware.
-
-##### # Monitor Processes # #####
-htop
-
 
 
 ##### # Using Autoruns # #####
@@ -174,6 +184,10 @@ For example, to view events that occurred between 10:00 AM and 12:00 PM on Janua
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=BREAKDOWN-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+file /sbin/init                # USE THIS ONE FIRST                 # find out whether you're running init or systemd (sysV or SysD)
+
+
+
 #find ports running malicious activity
 sudo netstat -tuln
 #show you a list of all open ports on your system along with the process that is listening on each port
@@ -190,102 +204,116 @@ sudo crontab -l
 sudo systemctl list-units --type=service
 #list of all running services on your system
 
+# Show everything in a directory
+ls -shilat
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-PORTS-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#find ports running malicious activity
+sudo netstat -tuln
+#show you a list of all open ports on your system along with the process that is listening on each port
 
-###### Looking for malicious activity on a port with NETSTAT ######
+##### # Using TCPDump # #####
+sudo tcpdump -i any -v
+# capture all network traffic on all interfaces and display the captured packets in verbose mode
 
-# Launch PowerShell or Command Prompt as an administrator.
 
-netstat -ano
+##### # Correlate Malicious Port Activity to a Service # #####
+sudo lsof -i :<port number>                                       #Replace <port number> with the actual port number you want to investigate
+# lists all the processes that are using the specified port, along with their associated service names and process IDs (PIDs)
 
-# to view all active network connections
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=Services/Processes-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# real-time information about running processes view of processes, PID, PPID, commands, etc...
+htop
 
-# This will shows a list of all active connections, along with the process ID (PID) associated with each connection.
+# Shows the list of processes in a tree -type format.. good to see the tree breakdown of processes from parent to child
+ps -elf --forest
 
-# Look for any connections that are associated with suspicious IP addresses or ports. Some common ports used by malware include 12345, 6666, 6667, 6668, and 6669 (IRC), 1433 (Microsoft SQL Server), 3389 (Remote Desktop Protocol), and 4444 (reverse shell).
+#check services for malware and malicious activity
+systemctl list-units --type=service
+#list of all running services on your system
 
-# Once you have identified a suspicious connection, note the associated PID and use the following command to view more information about the process:
+#list all running processes on your system
+ps aux
+# list of all running processes on your system, along with their process IDs (PIDs)
 
-tasklist /fi "pid eq <PID>"
 
-# Replace <PID> with the actual process ID you noted earlier.
+#Once you have PIDs and PPIDs, you can start finding where they're coming from
 
-# This will display the name of the process, the username under which it is running, and other details.
+sudo lsof -Pn | grep <PID>                                      # Replace <PID> with the process ID of the process you want to investigate
+# show a list of all files and network connections that are being used by the specified process, along with their associated file descriptors
 
-# If you suspect that the process is malicious, you can terminate it using the following command:
+# Find the file paths associated with a process
+sudo lsof -p <PID> | grep -E "^COMMAND|\<REG|\/"
 
-taskkill /pid <PID> /f
-
-# Replace <PID> with the actual process ID you noted earlier
-
-##### # Looking for malicious activity on a port with TCPVIEW # #####
-
-'''Launch TCPView as an administrator.
-
-Click the column header for the "Local Port" column to sort the list of connections by local port number.
-Locate the connection you are interested in and note its process ID (PID) in the "PID" column.
-Click the "Processes" menu and select "Show Process Information" (or press Ctrl+P).
-In the "Process Properties" dialog box, locate the process with the matching PID and note its name and parent process ID (PPID).
-
-Look for any connections that are associated with suspicious IP addresses or ports. You can sort the connections by clicking on the column headers, such as "Local Address" or "Remote Address".
-
-Once you have identified a suspicious connection, double-click on it to view more information about the process.
-
-If you suspect that the process is malicious, you can terminate it by right-clicking on the connection and selecting "End Process".
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=Profiles=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 '''
+Navigate to the various users' directories cd ~[username]
+Check the following for any suspicious or unfamiliar stuff
+cat .bashrc
+cat .profile
+cat .bash_history
+cat .ssh/authorized_keys
 
 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=REGISTRY-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-# Searching for malware/maliciousness in Registry #
+cat the below profiles to look for malware
 '''
-search for suspicious keys in the following locations:
+# Directories of importance
+  /    # Root
+  /bin   #
+  /etc/environment      #can hold malicous scripts
+  /etc/profile          # 
+  /etc/bash.bashrc      # Profile to look at
+  /etc/profile.d
+  
+  
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=SCHEDULED TASKS=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# location for user crontab
+/var/spool/cron/crontabs/
 
-HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run
-HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce
-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce
-'''
-# Searching through both run and runOnce piping them to get the property values for each
-Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run* | ForEach-Object {Get-ItemProperty $_.PSPath}
+#view the cron jobs for all users on the system
+ls -l /var/spool/cron/crontabs/
 
-# search through the Windows Task Scheduler
-Get-ScheduledTask | Get-ScheduledTaskInfo | Select-Object TaskName,LastRunTime,NextRunTime,LastTaskResult
 
-# search through running services
-Get-Service | Select-Object Name,DisplayName,Status,StartType | Where-Object {$_.StartType -ne "Disabled" -and $_.Status -eq "Running"}
 
-# search through installed software
-Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
+#list all scheduled tasks for the current user
+crontab -l
 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=AUTO STARTUPS=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-# Searching for processes that automatically start up # 
-Get-ScheduledTask
 
-# Using Autoruns #
-'''
-1. Run Autoruns as Admin or call it from cmd/pshell (.\Autoruns.exe)
-2. filter the results by clicking on the "Options" menu and selecting "Hide Microsoft Entries" to reduce the clutter
-3. Look for any entries that seem suspicious, such as ones with strange or unfamiliar names, locations, or descriptions. 
-Suspicious entries may also have no publisher information or a publisher name that does not match the legitimate publisher of the software
-4. Right-click on the suspicious entry and select "Jump to" to view the location of the file or registry key associated with the entry.
-If the file is located in a non-standard location, such as a temporary folder, outside of System32, or the root of the C:\ drive, it may be an indication of malicious activity.
-5. Check the entry's properties by double-clicking on it. Look for any command-line parameters, environment variables, or other details that may provide clues about the purpose of the entry.
-Some malware may use obfuscated or encrypted command-line parameters to evade detection, so be sure to scrutinize the details carefully.
-'''
+
+System cron jobs           /etc/crontab
+
+sudo ls -shilat /var/spook/cron/crontabs
+
+
+
+
+*     *     *     *     *     command to be executed
+-     -     -     -     -
+|     |     |     |     |
+|     |     |     |     +----- day of the week (0 - 6) (Sunday = 0)
+|     |     |     +------- month (1 - 12)
+|     |     +--------- day of the month (1 - 31)
+|     +----------- hour (0 - 23)
++------------- minute (0 - 59)
 
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=EVENT LOGS=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# display system logs, including messages from the kernel, services, and applications
 
-PowerShell to investigate the Windows event logs::
+#This log file contains general system messages, including startup messages, kernel messages, and other important system events.
+cat /var/log/messages
 
-PowerShell:
-Launch PowerShell as an administrator.
-To view the Security log, type the following command and press Enter: Get-EventLog -LogName Security
-To view the System log, type the following command and press Enter: Get-EventLog -LogName System
-To view the Application log, type the following command and press Enter: Get-EventLog -LogName Application
-You can filter events by using the -After and -Before parameters followed by a date and time in the format MM/DD/YYYY HH:MM:SS.
-For example, to view events that occurred between 10:00 AM and 12:00 PM on January 1st, 2023, you would use the following command: Get-EventLog -LogName Security -After "01/01/2023 10:00:00" -Before "01/01/2023 12:00:00"
+#This log file contains authentication-related messages, such as login attempts, su attempts, and other authentication events.
+cat /var/log/auth.log
+
+#This log file contains messages from various system services, including the kernel, system daemons, and applications.
+cat /var/log/syslog
+
+#This log file contains kernel ring buffer messages that are generated during the boot process.
+cat /var/log/dmesg
+
+
+
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -300,6 +328,9 @@ For example, to view events that occurred between 10:00 AM and 12:00 PM on Janua
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 #find ports running malicious activity
+
+netstat -tuln
+OR
 sudo ss -tulnp
 #show you a list of all open ports on your system along with the process that is listening on each port
 
@@ -323,6 +354,16 @@ sudo systemctl list-units --type=service
 #check for malicious entries in the systemd journal
 sudo journalctl -xe
 # list of all log entries related to system events, including any suspicious or malicious activity.
+
+
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=EVENT LOGS=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# display system logs, including messages from the kernel, services, and applications
+journalctl -b
+
+
+
 
 
 
