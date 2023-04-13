@@ -1,13 +1,16 @@
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-PLAN OF ATTACK=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 Check ports
 Check processes
 get PID and PPIDs
 Check registries
 Check Runs/Autoruns/RunOnce/Startup Stuff
+Check Filesystem
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=BREAKDOWN-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 # find ports running malicious activity, use the following PowerShell command
 
@@ -25,6 +28,13 @@ Get-ScheduledTask | Where-Object {$_.State -ne "Disabled"} | ForEach-Object {Get
 #check services for malware, you can use the following PowerShell command
 Get-WmiObject Win32_Service | Where-Object {$_.StartMode -ne "Disabled" -and $_.State -ne "Stopped"} | Select-Object Name, DisplayName, StartMode, State, PathName, ProcessId
 # lists all running services and their process IDs. You can look for any suspicious services that may be related to malware.
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=     Windows    -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-PORTS-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 ###### Looking for malicious activity on a port with NETSTAT ######
@@ -109,11 +119,30 @@ Some malware may use obfuscated or encrypted command-line parameters to evade de
 '''
 
 
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=Check Filesystem=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Use the Get-Process cmdlet to list all running processes and their associated file paths
+Get-Process | Select-Object Name, Path | Sort-Object Path
+#lists all running processes and their associated file paths, sorted by file path. You can look for any suspicious processes or file paths that may be related to malware.
 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+##### # Using Process Explorer # #####
+'''
+1. Launch Process Explorer as Administrator
+2. Click on the "Find" menu and select "Find Handle or DLL."
+3. In the search box, enter the name of a suspicious file or directory.
+
+Process Explorer will show you all processes that have a handle to the file or directory you searched for.
+You can then investigate each process to determine if it is related to malware
+'''
+
+##### # Using Autoruns # #####
+'''
+1. Launch Autoruns as Administrator
+2. Click on the "Everything" tab to see all configured startup items.
+3. Look for any suspicious file paths and investigate them further
+
+Autoruns can also show you additional information about each startup item, 
+such as its publisher and digital signature, which can help you determine if it is legitimate or not
+'''
 
 
 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=EVENT LOGS=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -128,6 +157,115 @@ To view the Application log, type the following command and press Enter: Get-Eve
 You can filter events by using the -After and -Before parameters followed by a date and time in the format MM/DD/YYYY HH:MM:SS.
 For example, to view events that occurred between 10:00 AM and 12:00 PM on January 1st, 2023, you would use the following command: Get-EventLog -LogName Security -After "01/01/2023 10:00:00" -Before "01/01/2023 12:00:00"
 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=      Linux     -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-PORTS-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+###### Looking for malicious activity on a port with NETSTAT ######
+
+# Launch PowerShell or Command Prompt as an administrator.
+
+netstat -ano
+
+# to view all active network connections
+
+# This will shows a list of all active connections, along with the process ID (PID) associated with each connection.
+
+# Look for any connections that are associated with suspicious IP addresses or ports. Some common ports used by malware include 12345, 6666, 6667, 6668, and 6669 (IRC), 1433 (Microsoft SQL Server), 3389 (Remote Desktop Protocol), and 4444 (reverse shell).
+
+# Once you have identified a suspicious connection, note the associated PID and use the following command to view more information about the process:
+
+tasklist /fi "pid eq <PID>"
+
+# Replace <PID> with the actual process ID you noted earlier.
+
+# This will display the name of the process, the username under which it is running, and other details.
+
+# If you suspect that the process is malicious, you can terminate it using the following command:
+
+taskkill /pid <PID> /f
+
+# Replace <PID> with the actual process ID you noted earlier
+
+##### # Looking for malicious activity on a port with TCPVIEW # #####
+
+'''Launch TCPView as an administrator.
+
+Click the column header for the "Local Port" column to sort the list of connections by local port number.
+Locate the connection you are interested in and note its process ID (PID) in the "PID" column.
+Click the "Processes" menu and select "Show Process Information" (or press Ctrl+P).
+In the "Process Properties" dialog box, locate the process with the matching PID and note its name and parent process ID (PPID).
+
+Look for any connections that are associated with suspicious IP addresses or ports. You can sort the connections by clicking on the column headers, such as "Local Address" or "Remote Address".
+
+Once you have identified a suspicious connection, double-click on it to view more information about the process.
+
+If you suspect that the process is malicious, you can terminate it by right-clicking on the connection and selecting "End Process".
+'''
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=REGISTRY-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Searching for malware/maliciousness in Registry #
+'''
+search for suspicious keys in the following locations:
+
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce
+'''
+# Searching through both run and runOnce piping them to get the property values for each
+Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run* | ForEach-Object {Get-ItemProperty $_.PSPath}
+
+# search through the Windows Task Scheduler
+Get-ScheduledTask | Get-ScheduledTaskInfo | Select-Object TaskName,LastRunTime,NextRunTime,LastTaskResult
+
+# search through running services
+Get-Service | Select-Object Name,DisplayName,Status,StartType | Where-Object {$_.StartType -ne "Disabled" -and $_.Status -eq "Running"}
+
+# search through installed software
+Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=AUTO STARTUPS=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# Searching for processes that automatically start up # 
+Get-ScheduledTask
+
+# Using Autoruns #
+'''
+1. Run Autoruns as Admin or call it from cmd/pshell (.\Autoruns.exe)
+2. filter the results by clicking on the "Options" menu and selecting "Hide Microsoft Entries" to reduce the clutter
+3. Look for any entries that seem suspicious, such as ones with strange or unfamiliar names, locations, or descriptions. 
+Suspicious entries may also have no publisher information or a publisher name that does not match the legitimate publisher of the software
+4. Right-click on the suspicious entry and select "Jump to" to view the location of the file or registry key associated with the entry.
+If the file is located in a non-standard location, such as a temporary folder, outside of System32, or the root of the C:\ drive, it may be an indication of malicious activity.
+5. Check the entry's properties by double-clicking on it. Look for any command-line parameters, environment variables, or other details that may provide clues about the purpose of the entry.
+Some malware may use obfuscated or encrypted command-line parameters to evade detection, so be sure to scrutinize the details carefully.
+'''
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=EVENT LOGS=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+PowerShell to investigate the Windows event logs::
+
+PowerShell:
+Launch PowerShell as an administrator.
+To view the Security log, type the following command and press Enter: Get-EventLog -LogName Security
+To view the System log, type the following command and press Enter: Get-EventLog -LogName System
+To view the Application log, type the following command and press Enter: Get-EventLog -LogName Application
+You can filter events by using the -After and -Before parameters followed by a date and time in the format MM/DD/YYYY HH:MM:SS.
+For example, to view events that occurred between 10:00 AM and 12:00 PM on January 1st, 2023, you would use the following command: Get-EventLog -LogName Security -After "01/01/2023 10:00:00" -Before "01/01/2023 12:00:00"
+
+
+
+
+
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
 
 
